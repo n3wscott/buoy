@@ -1,4 +1,4 @@
-package pkg
+package golang
 
 import (
 	"fmt"
@@ -15,11 +15,10 @@ type MetaImport struct {
 
 func (m *MetaImport) OrgRepo() (string, string) {
 	repoRoot := strings.TrimSuffix(m.RepoRoot, ".git")
-	repoRoot = strings.TrimPrefix(repoRoot, "https://github.com/")
 
 	parts := strings.Split(repoRoot, "/")
-	if len(parts) == 2 {
-		return parts[0], parts[1]
+	if len(parts) >= 2 {
+		return parts[len(parts)-2], parts[len(parts)-1]
 	}
 	panic(fmt.Errorf("unknown repo root: %s", m.RepoRoot))
 }
