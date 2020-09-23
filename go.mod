@@ -1,4 +1,4 @@
-module github.com/n3wscott/bouy
+module github.com/n3wscott/buoy
 
 go 1.14
 
