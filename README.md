@@ -38,7 +38,7 @@ Note: the following are equivalent:
 
 Buoy will select a `ref` for a found dependency, in this order:
 
-1. a release, ex: `v0.1.2`
+1. a release tag, ex: `v0.1.2`
 1. a release branch, ex: `release-0.1`
 1. the default branch
 
