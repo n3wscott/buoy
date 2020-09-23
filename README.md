@@ -71,11 +71,11 @@ Note: the following are equivalent releases:
 
 ### Float Rules
 
-Buoy will select a `ref` for a found dependency, in this order:
+The goal is to find the most stable reference for a given release. Buoy will select a `ref` for a found dependency, in this order:
 
-1. a release tag, ex: `v0.1.2`
-1. a release branch, ex: `release-0.1`
-1. the default branch
+1. A release tag with matching major and minor; choosing the one with the highest patch version, ex: `v0.1.2`
+1. If no tags, choose the release branch, ex: `release-0.1`
+1. Finally, the default branch
 
 ## TODO:
 
