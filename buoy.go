@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/blang/semver/v4"
-	"github.com/n3wscott/bouy/pkg/git"
-	"github.com/n3wscott/bouy/pkg/golang"
+	"github.com/n3wscott/buoy/pkg/git"
+	"github.com/n3wscott/buoy/pkg/golang"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/modfile"
 )
