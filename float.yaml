@@ -1,6 +1,0 @@
-release: 0.18
-knative:
-  - knative.dev/pkg
-  - knative.dev/eventing
-  - knative.dev/serving
-  - knative.dev/test-infra
