@@ -2,66 +2,41 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"strings"
-
-	"github.com/blang/semver/v4"
-	"github.com/n3wscott/buoy/pkg/git"
-	"github.com/n3wscott/buoy/pkg/golang"
+	"github.com/n3wscott/buoy/pkg/float"
 	"github.com/spf13/cobra"
-	"golang.org/x/mod/modfile"
 )
 
 func main() {
 	var domain string
+	var release string
 
-	var buoy = &cobra.Command{
-		Use:  "buoy go.mod v0.10",
-		Args: cobra.MinimumNArgs(2),
+	var floatCmd = &cobra.Command{
+		Use:   "float go.mod",
+		Short: "Find latest versions of dependencies based on a release.",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			gomod := args[0]
-			b, err := ioutil.ReadFile(gomod)
+
+			refs, err := float.Float(gomod, release, domain)
 			if err != nil {
 				return err
 			}
 
-			file, err := modfile.Parse(gomod, b, nil)
-			if err != nil {
-				return err
-			}
-
-			packages := make([]string, 0)
-			for _, r := range file.Require {
-				if strings.Contains(r.Mod.Path, domain) {
-					packages = append(packages, r.Mod.Path)
-				}
-			}
-
-			this, err := semver.ParseTolerant(args[1])
-			for _, p := range packages {
-				meta, err := golang.GetMetaImport(p)
-				if err != nil {
-					panic(err)
-				}
-
-				if meta.VCS != "git" {
-					panic(fmt.Errorf("unknown VCS: %s", meta.VCS))
-				}
-
-				repo, err := git.GetRepo(p, meta.RepoRoot)
-				if err != nil {
-					panic(err)
-				}
-
-				fmt.Printf("%s\n", repo.BestRefFor(this))
+			for _, r := range refs {
+				fmt.Printf("%s\n", r)
 			}
 			return nil
 		},
 	}
 
-	buoy.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
+	floatCmd.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
+	floatCmd.Flags().StringVarP(&release, "release", "r", "", "release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]")
+	_ = floatCmd.MarkFlagRequired("release")
 
-	if err := buoy.Execute(); err != nil {
+	var buoyCmd = &cobra.Command{Use: "buoy"}
+	buoyCmd.AddCommand(floatCmd)
+
+	if err := buoyCmd.Execute(); err != nil {
 		panic(err)
 	}
 }
