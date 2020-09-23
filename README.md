@@ -45,4 +45,3 @@ Buoy will select a `ref` for a found dependency, in this order:
 ## TODO:
 
 - Support `go-import` with more than one import on a single page.
-- Support git urls
