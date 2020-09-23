@@ -8,5 +8,4 @@ require (
 	github.com/spf13/cobra v1.0.0
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
-	gopkg.in/yaml.v2 v2.2.8 // indirect
 )
