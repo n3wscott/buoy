@@ -41,7 +41,7 @@ Flags:
 Example: 
 
 ```shell
-$ buoy $HOME/go/src/knative.dev/eventing-github/go.mod v0.15
+$ buoy float $HOME/go/src/knative.dev/eventing-github/go.mod --release v0.15
 knative.dev/eventing@v0.15.4
 knative.dev/pkg@release-0.15
 knative.dev/serving@v0.15.3
