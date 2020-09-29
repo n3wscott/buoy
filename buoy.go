@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/n3wscott/buoy/pkg/float"
+
 	"github.com/spf13/cobra"
+	"tableflip.dev/buoy/pkg/float"
 )
 
 func main() {

@@ -7,7 +7,7 @@ Given a go.mod file and a version, what are the versions this dependency should 
 `buoy` can be installed and upgraded by running:
 
 ```shell
-go get github.com/n3wscott/buoy
+go get tableflip.dev/buoy
 ```
 
 ## Usage

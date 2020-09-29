@@ -2,12 +2,13 @@ package float
 
 import (
 	"fmt"
-	"github.com/blang/semver/v4"
-	"github.com/n3wscott/buoy/pkg/git"
-	"github.com/n3wscott/buoy/pkg/golang"
-	"golang.org/x/mod/modfile"
 	"io/ioutil"
 	"strings"
+
+	"github.com/blang/semver/v4"
+	"golang.org/x/mod/modfile"
+	"tableflip.dev/buoy/pkg/git"
+	"tableflip.dev/buoy/pkg/golang"
 )
 
 func Float(gomod, release, domain string) ([]string, error) {
@@ -33,7 +34,8 @@ func Float(gomod, release, domain string) ([]string, error) {
 
 	refs := make([]string, 0)
 	for _, p := range packages {
-		meta, err := golang.GetMetaImport(p)
+		url := fmt.Sprintf("https://%s?go-get=1", p)
+		meta, err := golang.GetMetaImport(url)
 		if err != nil {
 			panic(err)
 		}

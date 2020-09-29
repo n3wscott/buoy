@@ -2,9 +2,10 @@ package golang
 
 import (
 	"fmt"
-	"golang.org/x/net/html"
 	"net/http"
 	"strings"
+
+	"golang.org/x/net/html"
 )
 
 // MetaImport represents the parsed <meta name="go-import"
@@ -51,8 +52,7 @@ func metaContent(doc *html.Node, name string) (string, error) {
 	return "", fmt.Errorf("missing <meta name=%s> in the node tree", name)
 }
 
-func GetMetaImport(i string) (*MetaImport, error) {
-	url := fmt.Sprintf("https://%s?go-get=1", i)
+func GetMetaImport(url string) (*MetaImport, error) {
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

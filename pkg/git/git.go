@@ -2,12 +2,12 @@ package git
 
 import (
 	"fmt"
-	"github.com/go-git/go-git/v5/config"
-	"github.com/go-git/go-git/v5/storage/memory"
 	"strings"
 
 	"github.com/blang/semver/v4"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/storage/memory"
 )
 
 type Repo struct {
