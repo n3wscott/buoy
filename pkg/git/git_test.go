@@ -11,7 +11,7 @@ func Test_Repo_BestRefFor(t *testing.T) {
 	repo := &Repo{
 		Ref:           "ref",
 		DefaultBranch: "main",
-		Tags:          []string{"v0.1.0", "bar", "v0.2.0", "baz", "v0.2.1", "foo"},
+		Tags:          []string{"v0.1.0", "bar", "v0.2.0", "baz", "v0.2.1", "v0.2.2-rc.1", "v0.2.2+build", "foo"},
 		Branches:      []string{"release-0.1", "bar", "release-0.2", "baz", "main", "release-0.3"},
 	}
 
@@ -19,33 +19,41 @@ func Test_Repo_BestRefFor(t *testing.T) {
 		repo    *Repo
 		version semver.Version
 		want    string
+		release bool
 	}{
 		"v0.1": {
 			repo:    repo,
 			version: semver.MustParse("0.1.0"),
 			want:    "ref@v0.1.0",
+			release: true,
 		},
 		"v0.2": {
 			repo:    repo,
 			version: semver.MustParse("0.2.0"),
 			want:    "ref@v0.2.1",
+			release: true,
 		},
 		"v0.3": {
 			repo:    repo,
 			version: semver.MustParse("0.3.0"),
 			want:    "ref@release-0.3",
+			release: false,
 		},
 		"v0.4": {
 			repo:    repo,
 			version: semver.MustParse("0.4.0"),
 			want:    "ref@main",
+			release: false,
 		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got := tt.repo.BestRefFor(tt.version)
+			got, release := tt.repo.BestRefFor(tt.version)
 			if got != tt.want {
-				t.Errorf("repo.BestRefFor() got = %v, want %v", got, tt.want)
+				t.Errorf("repo.BestRefFor() got ref = %v, want %v", got, tt.want)
+			}
+			if release != tt.release {
+				t.Errorf("repo.BestRefFor() got isRelease = %v, want %v", got, tt.want)
 			}
 		})
 	}

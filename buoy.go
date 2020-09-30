@@ -10,6 +10,7 @@ import (
 func main() {
 	var domain string
 	var release string
+	var strict bool
 
 	var floatCmd = &cobra.Command{
 		Use:   "float go.mod",
@@ -18,13 +19,15 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			gomod := args[0]
 
-			refs, err := float.Float(gomod, release, domain)
+			refs, err := float.Float(gomod, release, domain, strict)
 			if err != nil {
 				return err
 			}
 
 			for _, r := range refs {
-				fmt.Printf("%s\n", r)
+				if r != "" {
+					fmt.Printf("%s\n", r)
+				}
 			}
 			return nil
 		},
@@ -33,6 +36,7 @@ func main() {
 	floatCmd.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
 	floatCmd.Flags().StringVarP(&release, "release", "r", "", "release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]")
 	_ = floatCmd.MarkFlagRequired("release")
+	floatCmd.Flags().BoolVarP(&strict, "strict", "s", false, "strict - only select and return tagged modules")
 
 	var buoyCmd = &cobra.Command{Use: "buoy"}
 	buoyCmd.AddCommand(floatCmd)

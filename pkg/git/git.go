@@ -44,7 +44,8 @@ func GetRepo(ref, url string) (*Repo, error) {
 	return repo, nil
 }
 
-func (r *Repo) BestRefFor(this semver.Version) string {
+// BestRefFor Returns module@ref, isRelease
+func (r *Repo) BestRefFor(this semver.Version) (string, bool) {
 	var largest *semver.Version
 
 	// Look for a release.
@@ -52,6 +53,10 @@ func (r *Repo) BestRefFor(this semver.Version) string {
 	for _, t := range r.Tags {
 		if sv, ok := normalizeTagVersion(t); ok {
 			v, _ := semver.Make(sv)
+			// Go does not understand how to fetch semver tags with pre or build tags, skip those.
+			if v.Pre != nil || v.Build != nil {
+				continue
+			}
 			if v.Major == this.Major && v.Minor == this.Minor {
 				if largest == nil || largest.LT(v) {
 					largest = &v
@@ -60,7 +65,7 @@ func (r *Repo) BestRefFor(this semver.Version) string {
 		}
 	}
 	if largest != nil {
-		return fmt.Sprintf("%s@%s", r.Ref, tagVersion(*largest))
+		return fmt.Sprintf("%s@%s", r.Ref, tagVersion(*largest)), true
 	}
 
 	// Look for a release branch.
@@ -77,11 +82,11 @@ func (r *Repo) BestRefFor(this semver.Version) string {
 		}
 	}
 	if largest != nil {
-		return fmt.Sprintf("%s@%s", r.Ref, branchVersion(*largest))
+		return fmt.Sprintf("%s@%s", r.Ref, branchVersion(*largest)), false
 	}
 
 	// Return default branch.
-	return fmt.Sprintf("%s@%s", r.Ref, r.DefaultBranch)
+	return fmt.Sprintf("%s@%s", r.Ref, r.DefaultBranch), false
 }
 
 func normalizeTagVersion(v string) (string, bool) {

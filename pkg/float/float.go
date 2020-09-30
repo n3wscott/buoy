@@ -11,7 +11,7 @@ import (
 	"tableflip.dev/buoy/pkg/golang"
 )
 
-func Float(gomod, release, domain string) ([]string, error) {
+func Float(gomod, release, domain string, strict bool) ([]string, error) {
 	b, err := ioutil.ReadFile(gomod)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,14 @@ func Float(gomod, release, domain string) ([]string, error) {
 			return nil, err
 		}
 
-		refs = append(refs, repo.BestRefFor(this))
+		ref, isRelease := repo.BestRefFor(this)
+		if strict {
+			if isRelease {
+				refs = append(refs, ref)
+			}
+		} else {
+			refs = append(refs, ref)
+		}
 	}
 	return refs, nil
 }
