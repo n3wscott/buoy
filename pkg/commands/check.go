@@ -16,7 +16,7 @@ func addCheckCmd(root *cobra.Command) {
 
 	var cmd = &cobra.Command{
 		Use:   "check go.mod",
-		Short: "Determine if a given module is able to cut a release branch based on dependencies release artifacts.",
+		Short: "Determine if this module has release branches or releases available from each dependency for a given release.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			gomod := args[0]
