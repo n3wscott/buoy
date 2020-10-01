@@ -44,8 +44,20 @@ func GetRepo(ref, url string) (*Repo, error) {
 	return repo, nil
 }
 
+type RefType int
+
+const (
+	DefaultBranchRef RefType = iota
+	ReleaseBranchRef
+	ReleaseRef
+)
+
+func (rt RefType) String() string {
+	return [...]string{"Default Branch", "Release Branch", "Release"}[rt]
+}
+
 // BestRefFor Returns module@ref, isRelease
-func (r *Repo) BestRefFor(this semver.Version) (string, bool) {
+func (r *Repo) BestRefFor(this semver.Version) (string, RefType) {
 	var largest *semver.Version
 
 	// Look for a release.
@@ -65,7 +77,7 @@ func (r *Repo) BestRefFor(this semver.Version) (string, bool) {
 		}
 	}
 	if largest != nil {
-		return fmt.Sprintf("%s@%s", r.Ref, tagVersion(*largest)), true
+		return fmt.Sprintf("%s@%s", r.Ref, tagVersion(*largest)), ReleaseRef
 	}
 
 	// Look for a release branch.
@@ -82,11 +94,11 @@ func (r *Repo) BestRefFor(this semver.Version) (string, bool) {
 		}
 	}
 	if largest != nil {
-		return fmt.Sprintf("%s@%s", r.Ref, branchVersion(*largest)), false
+		return fmt.Sprintf("%s@%s", r.Ref, branchVersion(*largest)), ReleaseBranchRef
 	}
 
 	// Return default branch.
-	return fmt.Sprintf("%s@%s", r.Ref, r.DefaultBranch), false
+	return fmt.Sprintf("%s@%s", r.Ref, r.DefaultBranch), DefaultBranchRef
 }
 
 func normalizeTagVersion(v string) (string, bool) {

@@ -2,6 +2,7 @@ package float
 
 import (
 	"fmt"
+
 	"tableflip.dev/buoy/pkg/needs"
 
 	"github.com/blang/semver/v4"
@@ -10,7 +11,7 @@ import (
 )
 
 func Float(gomod, release, domain string, strict bool) ([]string, error) {
-	packages, err := needs.Needs([]string{gomod}, domain)
+	_, packages, err := needs.Needs([]string{gomod}, domain)
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +35,9 @@ func Float(gomod, release, domain string, strict bool) ([]string, error) {
 			return nil, err
 		}
 
-		ref, isRelease := repo.BestRefFor(this)
+		ref, refType := repo.BestRefFor(this)
 		if strict {
-			if isRelease {
+			if refType == git.ReleaseRef {
 				refs = append(refs, ref)
 			}
 		} else {

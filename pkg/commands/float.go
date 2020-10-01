@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 	"tableflip.dev/buoy/pkg/float"
 )
@@ -11,7 +12,7 @@ func addFloatCmd(root *cobra.Command) {
 	var release string
 	var strict bool
 
-	var floatCmd = &cobra.Command{
+	var cmd = &cobra.Command{
 		Use:   "float go.mod",
 		Short: "Find latest versions of dependencies based on a release.",
 		Args:  cobra.ExactArgs(1),
@@ -32,10 +33,10 @@ func addFloatCmd(root *cobra.Command) {
 		},
 	}
 
-	floatCmd.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
-	floatCmd.Flags().StringVarP(&release, "release", "r", "", "release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]")
-	_ = floatCmd.MarkFlagRequired("release")
-	floatCmd.Flags().BoolVarP(&strict, "strict", "s", false, "strict - only select and return tagged modules")
+	cmd.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
+	cmd.Flags().StringVar(&release, "release", "r", "release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]")
+	_ = cmd.MarkFlagRequired("release")
+	cmd.Flags().BoolVarP(&strict, "strict", "s", false, "strict - only select and return tagged modules")
 
-	root.AddCommand(floatCmd)
+	root.AddCommand(cmd)
 }

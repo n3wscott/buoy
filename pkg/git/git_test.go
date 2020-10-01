@@ -1,8 +1,9 @@
 package git
 
 import (
-	"github.com/blang/semver/v4"
 	"testing"
+
+	"github.com/blang/semver/v4"
 )
 
 // TODO: no test for GetRepo, I did not want to mock all of git api...
@@ -19,31 +20,31 @@ func Test_Repo_BestRefFor(t *testing.T) {
 		repo    *Repo
 		version semver.Version
 		want    string
-		release bool
+		release RefType
 	}{
 		"v0.1": {
 			repo:    repo,
 			version: semver.MustParse("0.1.0"),
 			want:    "ref@v0.1.0",
-			release: true,
+			release: ReleaseRef,
 		},
 		"v0.2": {
 			repo:    repo,
 			version: semver.MustParse("0.2.0"),
 			want:    "ref@v0.2.1",
-			release: true,
+			release: ReleaseRef,
 		},
 		"v0.3": {
 			repo:    repo,
 			version: semver.MustParse("0.3.0"),
 			want:    "ref@release-0.3",
-			release: false,
+			release: ReleaseBranchRef,
 		},
 		"v0.4": {
 			repo:    repo,
 			version: semver.MustParse("0.4.0"),
 			want:    "ref@main",
-			release: false,
+			release: DefaultBranchRef,
 		},
 	}
 	for name, tt := range tests {

@@ -5,39 +5,43 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
+
 	"tableflip.dev/buoy/pkg/golang"
 
 	"golang.org/x/mod/modfile"
 )
 
-func Needs(gomod []string, domain string) ([]string, error) {
-	packages := make([]string, 0)
+// Needs returns a map of given given modules to their dependencies, and a list of unique dependencies.
+func Needs(gomod []string, domain string) (map[string][]string, []string, error) {
+	packages := make(map[string][]string, 0)
+	dependencies := make([]string, 0)
 	cache := make(map[string]bool)
 	for _, gm := range gomod {
-		pkgs, err := needs(gm, domain)
+		module, pkgs, err := needs(gm, domain)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
+		packages[module] = pkgs
 		for _, pkg := range pkgs {
 			if _, seen := cache[pkg]; seen {
 				continue
 			}
 			cache[pkg] = true
-			packages = append(packages, pkg)
+			dependencies = append(dependencies, pkg)
 		}
 	}
 
-	return packages, nil
+	return packages, dependencies, nil
 }
-func needs(gomod string, domain string) ([]string, error) {
+func needs(gomod string, domain string) (string, []string, error) {
 	b, err := ioutil.ReadFile(gomod)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	file, err := modfile.Parse(gomod, b, nil)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	packages := make([]string, 0)
@@ -48,7 +52,7 @@ func needs(gomod string, domain string) ([]string, error) {
 		}
 	}
 
-	return packages, nil
+	return file.Module.Mod.Path, packages, nil
 }
 
 func Dot(gomods []string, domain string) (string, error) {
