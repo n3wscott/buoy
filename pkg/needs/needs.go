@@ -12,12 +12,19 @@ import (
 
 func Needs(gomod []string, domain string) ([]string, error) {
 	packages := make([]string, 0)
+	cache := make(map[string]bool)
 	for _, gm := range gomod {
 		pkgs, err := needs(gm, domain)
 		if err != nil {
 			return nil, err
 		}
-		packages = append(packages, pkgs...)
+		for _, pkg := range pkgs {
+			if _, seen := cache[pkg]; seen {
+				continue
+			}
+			cache[pkg] = true
+			packages = append(packages, pkg)
+		}
 	}
 
 	return packages, nil
