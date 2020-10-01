@@ -15,50 +15,61 @@ func Check(gomod, release, domain string, verbose bool) error {
 		return err
 	}
 
-	this, err := semver.ParseTolerant(release)
-
 	for module, packages := range moduleNeeds {
-		if verbose {
-			fmt.Printf("%s\n", module)
+		if err := check(module, packages, release, verbose); err != nil {
+			return err
 		}
-		nonReady := make([]string, 0)
-		for _, p := range packages {
-			url := fmt.Sprintf("https://%s?go-get=1", p)
-			meta, err := golang.GetMetaImport(url)
-			if err != nil {
-				return fmt.Errorf("unable to fetch go import %s: %v", url, err)
-			}
+	}
+	return nil
+}
 
-			if meta.VCS != "git" {
-				return fmt.Errorf("unknown VCS: %s", meta.VCS)
-			}
+func check(module string, packages []string, release string, verbose bool) error {
+	this, err := semver.ParseTolerant(release)
+	if err != nil {
+		return err
+	}
 
-			repo, err := git.GetRepo(p, meta.RepoRoot)
-			if err != nil {
-				return err
-			}
-
-			ref, refType := repo.BestRefFor(this)
-			switch refType {
-			case git.DefaultBranchRef:
-				nonReady = append(nonReady, ref)
-				if verbose {
-					fmt.Printf("✘ %s\n", ref)
-				}
-			case git.ReleaseBranchRef, git.ReleaseRef:
-				if verbose {
-					fmt.Printf("✔ %s\n", ref)
-				}
-			}
+	if verbose {
+		fmt.Printf("%s\n", module)
+	}
+	nonReady := make([]string, 0)
+	for _, p := range packages {
+		url := fmt.Sprintf("https://%s?go-get=1", p)
+		meta, err := golang.GetMetaImport(url)
+		if err != nil {
+			return fmt.Errorf("unable to fetch go import %s: %v", url, err)
 		}
 
-		if len(nonReady) > 0 {
-			return &Error{
-				Module:       module,
-				Dependencies: nonReady,
+		if meta.VCS != "git" {
+			return fmt.Errorf("unknown VCS: %s", meta.VCS)
+		}
+
+		repo, err := git.GetRepo(p, meta.RepoRoot)
+		if err != nil {
+			return err
+		}
+
+		ref, refType := repo.BestRefFor(this)
+		switch refType {
+		case git.DefaultBranchRef:
+			nonReady = append(nonReady, ref)
+			if verbose {
+				fmt.Printf("✘ %s\n", ref)
+			}
+		case git.ReleaseBranchRef, git.ReleaseRef:
+			if verbose {
+				fmt.Printf("✔ %s\n", ref)
 			}
 		}
 	}
+
+	if len(nonReady) > 0 {
+		return &Error{
+			Module:       module,
+			Dependencies: nonReady,
+		}
+	}
+
 	return nil
 }
 
