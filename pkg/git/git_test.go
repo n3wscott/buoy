@@ -1,8 +1,9 @@
 package git
 
 import (
-	"github.com/blang/semver/v4"
 	"testing"
+
+	"github.com/blang/semver/v4"
 )
 
 // TODO: no test for GetRepo, I did not want to mock all of git api...

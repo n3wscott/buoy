@@ -2,8 +2,9 @@ package check
 
 import (
 	"fmt"
-	"github.com/blang/semver/v4"
 	"strings"
+
+	"github.com/blang/semver/v4"
 	"tableflip.dev/buoy/pkg/git"
 	"tableflip.dev/buoy/pkg/golang"
 	"tableflip.dev/buoy/pkg/needs"

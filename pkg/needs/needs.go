@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"regexp"
 	"strings"
+
 	"tableflip.dev/buoy/pkg/golang"
 
 	"golang.org/x/mod/modfile"
