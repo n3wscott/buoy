@@ -12,13 +12,14 @@ go get tableflip.dev/buoy
 
 ## Usage
 
-```shell
+```
 Usage:
   buoy [command]
 
 Available Commands:
   float       Find latest versions of dependencies based on a release.
   help        Help about any command
+  needs       Find dependencies based on a base import domain.
 
 Flags:
   -h, --help   help for buoy
@@ -28,7 +29,7 @@ Use "buoy [command] --help" for more information about a command.
 
 ### Float
 
-```shell
+```
 Usage:
   buoy float go.mod [flags]
 
@@ -40,15 +41,15 @@ Flags:
 
 Example: 
 
-```shell
-$ buoy float $HOME/go/src/knative.dev/eventing-github/go.mod --release v0.15
+```
+$ buoy float go.mod --release v0.15
 knative.dev/eventing@v0.15.4
 knative.dev/pkg@release-0.15
 knative.dev/serving@v0.15.3
 knative.dev/test-infra@release-0.15
 ```
 
-Or set the domain to and target release of that dependency:
+Or set `domain` to and target release of that dependency:
 
 ```shell script
 $ buoy float go.mod --release 0.18 --domain k8s.io
@@ -76,6 +77,45 @@ The goal is to find the most stable reference for a given release. Buoy will sel
 1. A release tag with matching major and minor; choosing the one with the highest patch version, ex: `v0.1.2`
 1. If no tags, choose the release branch, ex: `release-0.1`
 1. Finally, the default branch
+
+## Needs
+
+```
+Find dependencies based on a base import domain.
+
+Usage:
+  buoy needs go.mod [flags]
+
+Flags:
+  -d, --domain string   domain filter (default "knative.dev")
+      --dot             Produce a .dot file output for use with Graphviz.
+  -h, --help            help for needs
+```
+
+Example, 
+
+```
+$ buoy needs $HOME/go/src/knative.dev/eventing-github/go.mod
+knative.dev/eventing
+knative.dev/pkg
+knative.dev/serving
+knative.dev/test-infra
+```
+
+Or set `domain` to see a different dependency group:
+
+```
+$ buoy needs $HOME/go/src/knative.dev/eventing-github/go.mod --domain k8s.io
+k8s.io/api
+k8s.io/apimachinery
+k8s.io/client-go
+```
+
+Or as a graph and render using [graphvis](http://www.graphviz.org/):
+
+```
+buoy needs $HOME/go/src/knative.dev/eventing/go.mod --dot | dot -Tsvg > /tmp/kn.svg
+```
 
 ## TODO:
 

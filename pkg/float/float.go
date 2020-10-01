@@ -22,7 +22,7 @@ func Float(gomod, release, domain string, strict bool) ([]string, error) {
 		url := fmt.Sprintf("https://%s?go-get=1", p)
 		meta, err := golang.GetMetaImport(url)
 		if err != nil {
-			panic(err)
+			return nil, fmt.Errorf("unable to fetch go import %s: %v", url, err)
 		}
 
 		if meta.VCS != "git" {
