@@ -10,7 +10,7 @@ func addNeedsCmd(root *cobra.Command) {
 	var domain string
 	var dot bool
 
-	var floatCmd = &cobra.Command{
+	var cmd = &cobra.Command{
 		Use:   "needs go.mod",
 		Short: "Find dependencies based on a base import domain.",
 		Args:  cobra.MinimumNArgs(1),
@@ -26,7 +26,7 @@ func addNeedsCmd(root *cobra.Command) {
 				return nil
 			}
 
-			packages, err := needs.Needs(gomods, domain)
+			_, packages, err := needs.Needs(gomods, domain)
 			if err != nil {
 				return err
 			}
@@ -40,8 +40,8 @@ func addNeedsCmd(root *cobra.Command) {
 		},
 	}
 
-	floatCmd.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
-	floatCmd.Flags().BoolVar(&dot, "dot", false, "Produce a .dot file output for use with Graphviz.")
+	cmd.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
+	cmd.Flags().BoolVar(&dot, "dot", false, "Produce a .dot file output for use with Graphviz.")
 
-	root.AddCommand(floatCmd)
+	root.AddCommand(cmd)
 }
