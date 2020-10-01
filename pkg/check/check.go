@@ -39,15 +39,17 @@ func Check(gomod, release, domain string, verbose bool) error {
 			}
 
 			ref, refType := repo.BestRefFor(this)
-			if refType == git.DefaultBranchRef {
+			switch refType {
+			case git.DefaultBranchRef:
 				nonReady = append(nonReady, ref)
 				if verbose {
-					fmt.Printf("✘ - %s\n", ref)
+					fmt.Printf("✘ %s\n", ref)
 				}
-			} else if verbose {
-				fmt.Printf("✔ - %s\n", ref)
+			case git.ReleaseBranchRef, git.ReleaseRef:
+				if verbose {
+					fmt.Printf("✔ %s\n", ref)
+				}
 			}
-
 		}
 
 		if len(nonReady) > 0 {
