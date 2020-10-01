@@ -13,12 +13,12 @@ func addNeedsCmd(root *cobra.Command) {
 	var floatCmd = &cobra.Command{
 		Use:   "needs go.mod",
 		Short: "Find dependencies based on a base import domain.",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			gomod := args[0]
+			gomods := args
 
 			if dot {
-				graph, err := needs.Dot(gomod, domain)
+				graph, err := needs.Dot(gomods, domain)
 				if err != nil {
 					return err
 				}
@@ -26,7 +26,7 @@ func addNeedsCmd(root *cobra.Command) {
 				return nil
 			}
 
-			packages, err := needs.Needs(gomod, domain)
+			packages, err := needs.Needs(gomods, domain)
 			if err != nil {
 				return err
 			}

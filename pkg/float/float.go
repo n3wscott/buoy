@@ -10,7 +10,7 @@ import (
 )
 
 func Float(gomod, release, domain string, strict bool) ([]string, error) {
-	packages, err := needs.Needs(gomod, domain)
+	packages, err := needs.Needs([]string{gomod}, domain)
 	if err != nil {
 		return nil, err
 	}
