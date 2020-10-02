@@ -72,7 +72,7 @@ For rulesets that that restrict the selection process, no ref is selected.
 	cmd.Flags().StringVarP(&domain, "domain", "d", "knative.dev", "domain filter")
 	cmd.Flags().StringVarP(&release, "release", "r", "", "release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]")
 	_ = cmd.MarkFlagRequired("release")
-	cmd.Flags().BoolVarP(&strict, "strict", "s", false, "strict - only select and return tagged modules (equivalent to Releases ruleset).")
+	cmd.Flags().BoolVar(&strict, "strict", false, "strict - only select and return tagged modules (equivalent to Releases ruleset).")
 	cmd.Flags().StringVar(&rulesetFlag, "ruleset", git.AnyRule.String(), fmt.Sprintf("The ruleset to evaluate the dependency refs. Rulesets: [%s]", strings.Join(git.Rulesets(), ", ")))
 
 	root.AddCommand(cmd)

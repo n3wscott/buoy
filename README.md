@@ -115,7 +115,7 @@ Flags:
   -h, --help             help for float
   -r, --release string   release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]
       --ruleset string   The ruleset to evaluate the dependency refs. Rulesets: [Any, ReleaseOrBranch, Release, Branch] (default "Any")
-  -s, --strict           strict - only select and return tagged modules (equivalent to Releases ruleset).
+      --strict           strict - only select and return tagged modules (equivalent to Releases ruleset).
 ```
 
 Example:
