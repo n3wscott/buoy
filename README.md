@@ -1,7 +1,6 @@
 # buoy
 
-Given a go.mod file and a version, what are the versions this dependency should
-use?
+A tool to encode the Knative release process logic based on go module versions.
 
 ## Installation
 
@@ -32,7 +31,16 @@ Use "buoy [command] --help" for more information about a command.
 ### Check
 
 ```
-Determine if this module has release branches or releases available from each dependency for a given release.
+The check command is used to evaluate if each dependency for the given module
+meets the requirements for cutting a release branch. If the requirements are
+met based on the ruleset selected, the command will exit with code 0, otherwise
+an error message is generated and the with the failed dependencies and exit
+code 1. Errors are written to stderr. Verbose output is written to stdout.
+
+Rulesets,
+  Release          check requires all dependencies to have tagged releases.
+  Branch           check requires all dependencies to have a release branch.
+  ReleaseOrBranch  check will use rule (Release || Branch).
 
 Usage:
   buoy check go.mod [flags]
@@ -40,14 +48,10 @@ Usage:
 Flags:
   -d, --domain string    domain filter (default "knative.dev")
   -h, --help             help for check
-      --release string   release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required] (default "r")
+  -r, --release string   release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]
+      --ruleset string   The ruleset to evaluate the dependency refs. Rulesets: [Any, ReleaseOrBranch, Release, Branch] (default "ReleaseOrBranch")
   -v, --verbose          Print verbose output.
 ```
-
-- Pass/Fail of the check controlled by the exit code: 0 = check passed. 1 =
-  check failed.
-- Error message for failures written to `stderr`.
-- Verbose output written to `stdout`.
 
 Example,
 
@@ -63,7 +67,7 @@ knative.dev/eventing-github not ready for release because of the following depen
 If you need to see a more verbose output, use `--verbose`:
 
 ```
-$ go run . check $HOME/go/src/knative.dev/eventing-github/go.mod --release 0.18 --verbose
+$ bouy check $HOME/go/src/knative.dev/eventing-github/go.mod --release 0.18 --verbose
 knative.dev/eventing-github
 ✔ knative.dev/eventing@v0.18.0
 ✔ knative.dev/pkg@release-0.18
@@ -71,7 +75,7 @@ knative.dev/eventing-github
 ✔ knative.dev/test-infra@release-0.18
 [exit status 0]
 
-$ go run . check $HOME/go/src/knative.dev/eventing-github/go.mod --release 0.19 --verbose
+$ bouy check $HOME/go/src/knative.dev/eventing-github/go.mod --release 0.19 --verbose
 knative.dev/eventing-github
 ✘ knative.dev/eventing@master
 ✘ knative.dev/pkg@master
@@ -84,6 +88,25 @@ knative.dev/eventing-github not ready for release because of the following depen
 ### Float
 
 ```
+The goal of the float command is to find the best reference for a given release.
+Float will select a ref for found dependencies, in this order (for the Any
+ruleset, default):
+
+1. A release tag with matching major and minor; choosing the one with the
+   highest patch version, ex: "v0.1.2"
+2. If no tags, choose the release branch, ex: "release-0.1"
+3. Finally, the default branch, ex: "master"
+
+The selection process for float can be modified by providing a ruleset.
+
+Rulesets,
+  Any              tagged releases, release branches, default branch
+  Release          tagged releases
+  Branch           release branches
+  ReleaseOrBranch  tagged releases, release branch
+
+For rulesets that that restrict the selection process, no ref is selected.
+
 Usage:
   buoy float go.mod [flags]
 
@@ -91,6 +114,8 @@ Flags:
   -d, --domain string    domain filter (default "knative.dev")
   -h, --help             help for float
   -r, --release string   release should be '<major>.<minor>' (i.e.: 1.23 or v1.23) [required]
+      --ruleset string   The ruleset to evaluate the dependency refs. Rulesets: [Any, ReleaseOrBranch, Release, Branch] (default "Any")
+      --strict           strict - only select and return tagged modules (equivalent to Releases ruleset).
 ```
 
 Example:
@@ -122,16 +147,6 @@ Note: the following are equivalent releases:
 - `v0.1.0`
 - `0.1`
 - `0.1.0`
-
-### Float Rules
-
-The goal is to find the most stable reference for a given release. Buoy will
-select a `ref` for a found dependency, in this order:
-
-1. A release tag with matching major and minor; choosing the one with the
-   highest patch version, ex: `v0.1.2`
-1. If no tags, choose the release branch, ex: `release-0.1`
-1. Finally, the default branch
 
 ## Needs
 
