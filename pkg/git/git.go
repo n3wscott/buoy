@@ -50,6 +50,7 @@ const (
 	DefaultBranchRef RefType = iota
 	ReleaseBranchRef
 	ReleaseRef
+	NoRef
 )
 
 func (rt RefType) String() string {
@@ -57,48 +58,59 @@ func (rt RefType) String() string {
 }
 
 // BestRefFor Returns module@ref, isRelease
-func (r *Repo) BestRefFor(this semver.Version) (string, RefType) {
-	var largest *semver.Version
+func (r *Repo) BestRefFor(this semver.Version, ruleset RulesetType) (string, RefType) {
 
-	// Look for a release.
-	largest = nil
-	for _, t := range r.Tags {
-		if sv, ok := normalizeTagVersion(t); ok {
-			v, _ := semver.Make(sv)
-			// Go does not understand how to fetch semver tags with pre or build tags, skip those.
-			if v.Pre != nil || v.Build != nil {
-				continue
-			}
-			if v.Major == this.Major && v.Minor == this.Minor {
-				if largest == nil || largest.LT(v) {
-					largest = &v
+	switch ruleset {
+	case AnyRule, ReleaseOrReleaseBranchRule, ReleaseRule:
+		var largest *semver.Version
+		// Look for a release.
+		for _, t := range r.Tags {
+			if sv, ok := normalizeTagVersion(t); ok {
+				v, _ := semver.Make(sv)
+				// Go does not understand how to fetch semver tags with pre or build tags, skip those.
+				if v.Pre != nil || v.Build != nil {
+					continue
+				}
+				if v.Major == this.Major && v.Minor == this.Minor {
+					if largest == nil || largest.LT(v) {
+						largest = &v
+					}
 				}
 			}
 		}
-	}
-	if largest != nil {
-		return fmt.Sprintf("%s@%s", r.Ref, tagVersion(*largest)), ReleaseRef
+		if largest != nil {
+			return fmt.Sprintf("%s@%s", r.Ref, tagVersion(*largest)), ReleaseRef
+		}
 	}
 
-	// Look for a release branch.
-	largest = nil
-	for _, b := range r.Branches {
-		if bv, ok := normalizeBranchVersion(b); ok {
-			v, _ := semver.Make(bv)
+	switch ruleset {
+	case AnyRule, ReleaseOrReleaseBranchRule, ReleaseBranchRule:
+		var largest *semver.Version
+		// Look for a release branch.
+		for _, b := range r.Branches {
+			if bv, ok := normalizeBranchVersion(b); ok {
+				v, _ := semver.Make(bv)
 
-			if v.Major == this.Major && v.Minor == this.Minor {
-				if largest == nil || largest.LT(v) {
-					largest = &v
+				if v.Major == this.Major && v.Minor == this.Minor {
+					if largest == nil || largest.LT(v) {
+						largest = &v
+					}
 				}
 			}
 		}
-	}
-	if largest != nil {
-		return fmt.Sprintf("%s@%s", r.Ref, branchVersion(*largest)), ReleaseBranchRef
+		if largest != nil {
+			return fmt.Sprintf("%s@%s", r.Ref, branchVersion(*largest)), ReleaseBranchRef
+		}
 	}
 
-	// Return default branch.
-	return fmt.Sprintf("%s@%s", r.Ref, r.DefaultBranch), DefaultBranchRef
+	switch ruleset {
+	case AnyRule:
+		// Look for a Return default branch.
+		return fmt.Sprintf("%s@%s", r.Ref, r.DefaultBranch), DefaultBranchRef
+	}
+
+	// No ref found with the provided rule
+	return r.Ref, NoRef
 }
 
 func normalizeTagVersion(v string) (string, bool) {

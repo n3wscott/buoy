@@ -10,21 +10,21 @@ import (
 	"tableflip.dev/buoy/pkg/needs"
 )
 
-func Check(gomod, release, domain string, verbose bool) error {
+func Check(gomod, release, domain string, ruleset git.RulesetType, verbose bool) error {
 	moduleNeeds, _, err := needs.Needs([]string{gomod}, domain)
 	if err != nil {
 		return err
 	}
 
 	for module, packages := range moduleNeeds {
-		if err := check(module, packages, release, verbose); err != nil {
+		if err := check(module, packages, release, ruleset, verbose); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-func check(module string, packages []string, release string, verbose bool) error {
+func check(module string, packages []string, release string, ruleset git.RulesetType, verbose bool) error {
 	this, err := semver.ParseTolerant(release)
 	if err != nil {
 		return err
@@ -50,14 +50,14 @@ func check(module string, packages []string, release string, verbose bool) error
 			return err
 		}
 
-		ref, refType := repo.BestRefFor(this)
+		ref, refType := repo.BestRefFor(this, ruleset)
 		switch refType {
-		case git.DefaultBranchRef:
+		case git.NoRef:
 			nonReady = append(nonReady, ref)
 			if verbose {
 				fmt.Printf("✘ %s\n", ref)
 			}
-		case git.ReleaseBranchRef, git.ReleaseRef:
+		default:
 			if verbose {
 				fmt.Printf("✔ %s\n", ref)
 			}

@@ -21,35 +21,127 @@ func Test_Repo_BestRefFor(t *testing.T) {
 		version semver.Version
 		want    string
 		release RefType
+		rule    RulesetType
 	}{
-		"v0.1": {
+		"Any - v0.1": {
 			repo:    repo,
 			version: semver.MustParse("0.1.0"),
 			want:    "ref@v0.1.0",
 			release: ReleaseRef,
+			rule:    AnyRule,
 		},
-		"v0.2": {
+		"Any - v0.2": {
 			repo:    repo,
 			version: semver.MustParse("0.2.0"),
 			want:    "ref@v0.2.1",
 			release: ReleaseRef,
+			rule:    AnyRule,
 		},
-		"v0.3": {
+		"Any - v0.3": {
 			repo:    repo,
 			version: semver.MustParse("0.3.0"),
 			want:    "ref@release-0.3",
 			release: ReleaseBranchRef,
+			rule:    AnyRule,
 		},
-		"v0.4": {
+		"Any - v0.4": {
 			repo:    repo,
 			version: semver.MustParse("0.4.0"),
 			want:    "ref@main",
 			release: DefaultBranchRef,
+			rule:    AnyRule,
+		},
+
+		"ReleaseOrReleaseBranch - v0.1": {
+			repo:    repo,
+			version: semver.MustParse("0.1.0"),
+			want:    "ref@v0.1.0",
+			release: ReleaseRef,
+			rule:    ReleaseOrReleaseBranchRule,
+		},
+		"ReleaseOrReleaseBranch - v0.2": {
+			repo:    repo,
+			version: semver.MustParse("0.2.0"),
+			want:    "ref@v0.2.1",
+			release: ReleaseRef,
+			rule:    ReleaseOrReleaseBranchRule,
+		},
+		"ReleaseOrReleaseBranch - v0.3": {
+			repo:    repo,
+			version: semver.MustParse("0.3.0"),
+			want:    "ref@release-0.3",
+			release: ReleaseBranchRef,
+			rule:    ReleaseOrReleaseBranchRule,
+		},
+		"ReleaseOrReleaseBranch - v0.4": {
+			repo:    repo,
+			version: semver.MustParse("0.4.0"),
+			want:    "ref",
+			release: NoRef,
+			rule:    ReleaseOrReleaseBranchRule,
+		},
+
+		"Release - v0.1": {
+			repo:    repo,
+			version: semver.MustParse("0.1.0"),
+			want:    "ref@v0.1.0",
+			release: ReleaseRef,
+			rule:    ReleaseRule,
+		},
+		"Release - v0.2": {
+			repo:    repo,
+			version: semver.MustParse("0.2.0"),
+			want:    "ref@v0.2.1",
+			release: ReleaseRef,
+			rule:    ReleaseRule,
+		},
+		"Release - v0.3": {
+			repo:    repo,
+			version: semver.MustParse("0.3.0"),
+			want:    "ref",
+			release: NoRef,
+			rule:    ReleaseRule,
+		},
+		"Release - v0.4": {
+			repo:    repo,
+			version: semver.MustParse("0.4.0"),
+			want:    "ref",
+			release: NoRef,
+			rule:    ReleaseRule,
+		},
+
+		"ReleaseBranch - v0.1": {
+			repo:    repo,
+			version: semver.MustParse("0.1.0"),
+			want:    "ref@release-0.1",
+			release: ReleaseBranchRef,
+			rule:    ReleaseBranchRule,
+		},
+		"ReleaseBranch - v0.2": {
+			repo:    repo,
+			version: semver.MustParse("0.2.0"),
+			want:    "ref@release-0.2",
+			release: ReleaseBranchRef,
+			rule:    ReleaseBranchRule,
+		},
+		"ReleaseBranch - v0.3": {
+			repo:    repo,
+			version: semver.MustParse("0.3.0"),
+			want:    "ref@release-0.3",
+			release: ReleaseBranchRef,
+			rule:    ReleaseBranchRule,
+		},
+		"ReleaseBranch - v0.4": {
+			repo:    repo,
+			version: semver.MustParse("0.4.0"),
+			want:    "ref",
+			release: NoRef,
+			rule:    ReleaseBranchRule,
 		},
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			got, release := tt.repo.BestRefFor(tt.version)
+			got, release := tt.repo.BestRefFor(tt.version, tt.rule)
 			if got != tt.want {
 				t.Errorf("repo.BestRefFor() got ref = %v, want %v", got, tt.want)
 			}

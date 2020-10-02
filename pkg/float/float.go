@@ -10,7 +10,7 @@ import (
 	"tableflip.dev/buoy/pkg/golang"
 )
 
-func Float(gomod, release, domain string, strict bool) ([]string, error) {
+func Float(gomod, release, domain string, ruleset git.RulesetType) ([]string, error) {
 	_, packages, err := needs.Needs([]string{gomod}, domain)
 	if err != nil {
 		return nil, err
@@ -35,12 +35,7 @@ func Float(gomod, release, domain string, strict bool) ([]string, error) {
 			return nil, err
 		}
 
-		ref, refType := repo.BestRefFor(this)
-		if strict {
-			if refType == git.ReleaseRef {
-				refs = append(refs, ref)
-			}
-		} else {
+		if ref, refType := repo.BestRefFor(this, ruleset); refType != git.NoRef {
 			refs = append(refs, ref)
 		}
 	}
